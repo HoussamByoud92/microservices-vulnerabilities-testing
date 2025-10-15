@@ -1,6 +1,6 @@
 # 🔓 Microservices Vulnérables - Démo Éducative
 
-⚠️ **ATTENTION**: Ce projet est **intentionnellement vulnérable** à des fins éducatives. Ne JAMAIS utiliser en production!
+⚠️ **REMARQUE**: Ce mini projet est **intentionnellement vulnérable** à des fins éducatives.
 
 ## 🎯 Objectif
 
