@@ -352,6 +352,6 @@ Pour sécuriser ces services, il faudrait:
 - Utiliser des secrets managers
 - Implémenter RBAC (Role-Based Access Control)
 
-## ⚖️ Licence
+<img width="1633" height="917" alt="image" src="https://github.com/user-attachments/assets/40024e3d-24b6-4d63-a863-9549506a5326" />
+<img width="1564" height="432" alt="image" src="https://github.com/user-attachments/assets/ed0cddca-aa51-4041-8142-f5e1ee962a97" />
 
-Ce projet est à usage éducatif uniquement. Ne pas utiliser en production!
