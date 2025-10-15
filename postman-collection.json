@@ -1,0 +1,446 @@
+{
+  "info": {
+    "name": "Microservices Vulnérables - Démo",
+    "description": "Collection Postman pour tester les microservices vulnérables",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth Service",
+      "item": [
+        {
+          "name": "Get All Users (with passwords!)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["login"]
+            }
+          }
+        },
+        {
+          "name": "Create User (no validation)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"hacker\",\n  \"password\": \"123\",\n  \"role\": \"admin\",\n  \"ssn\": \"000-00-0000\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/users/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete User (no auth!)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/users/2",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["users", "2"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employee Service",
+      "item": [
+        {
+          "name": "Get All Employees (with SSN!)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/employees",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["employees"]
+            }
+          }
+        },
+        {
+          "name": "Get Employee by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/employees/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["employees", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Hacker\",\n  \"email\": \"alice@evil.com\",\n  \"ssn\": \"999-99-9999\",\n  \"dateOfBirth\": \"1995-01-01\",\n  \"address\": \"123 Evil St\",\n  \"phone\": \"555-HACK\",\n  \"department\": \"IT\",\n  \"position\": \"Pentester\",\n  \"hireDate\": \"2024-01-01\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3002/employees",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["employees"]
+            }
+          }
+        },
+        {
+          "name": "Update Employee (no auth!)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"position\": \"CEO\",\n  \"department\": \"Executive\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3002/employees/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["employees", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Employee",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/employees/3",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["employees", "3"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payroll Service",
+      "item": [
+        {
+          "name": "Get All Payroll (with bank accounts!)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/payroll",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["payroll"]
+            }
+          }
+        },
+        {
+          "name": "Get Payroll by Employee ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/payroll/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["payroll", "1"]
+            }
+          }
+        },
+        {
+          "name": "Adjust Salary (NO AUTH!)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": 1,\n  \"newSalary\": 250000,\n  \"reason\": \"Self-promotion\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3003/payroll/adjust",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["payroll", "adjust"]
+            }
+          }
+        },
+        {
+          "name": "Add Bonus (NO AUTH!)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": 1,\n  \"bonusAmount\": 50000\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3003/payroll/bonus",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["payroll", "bonus"]
+            }
+          }
+        },
+        {
+          "name": "Get Banking Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/payroll/banking/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["payroll", "banking", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notification Service",
+      "item": [
+        {
+          "name": "Get All Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3004/notifications",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "Send Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": \"victim@company.com\",\n  \"subject\": \"Your salary has been adjusted\",\n  \"message\": \"Congratulations on your promotion!\",\n  \"sensitiveData\": {\n    \"ssn\": \"123-45-6789\",\n    \"newSalary\": 1000000\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3004/notify",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["notify"]
+            }
+          }
+        },
+        {
+          "name": "Send Payroll Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": 1,\n  \"employeeName\": \"John Doe\",\n  \"salary\": 95000,\n  \"ssn\": \"987-65-4321\",\n  \"email\": \"john.doe@company.com\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3004/notify/payroll",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["notify", "payroll"]
+            }
+          }
+        },
+        {
+          "name": "Get Notification by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3004/notifications/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["notifications", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attack Scenarios",
+      "item": [
+        {
+          "name": "Scenario 1: Steal All SSNs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/employees",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["employees"]
+            }
+          }
+        },
+        {
+          "name": "Scenario 2: Give Yourself a Raise",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": 1,\n  \"newSalary\": 999999,\n  \"reason\": \"I deserve it!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3003/payroll/adjust",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["payroll", "adjust"]
+            }
+          }
+        },
+        {
+          "name": "Scenario 3: Steal Bank Accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/payroll",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["payroll"]
+            }
+          }
+        },
+        {
+          "name": "Scenario 4: Create Admin Backdoor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"backdoor\",\n  \"password\": \"secret123\",\n  \"role\": \"admin\",\n  \"ssn\": \"000-00-0000\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["users"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

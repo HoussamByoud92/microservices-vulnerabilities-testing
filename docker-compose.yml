@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "3001:3001"
+    networks:
+      - microservices-network
+    environment:
+      - NODE_ENV=development
+
+  employee-service:
+    build: ./employee-service
+    container_name: employee-service
+    ports:
+      - "3002:3002"
+    networks:
+      - microservices-network
+    environment:
+      - NODE_ENV=development
+
+  payroll-service:
+    build: ./payroll-service
+    container_name: payroll-service
+    ports:
+      - "3003:3003"
+    networks:
+      - microservices-network
+    environment:
+      - NODE_ENV=development
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "3004:3004"
+    networks:
+      - microservices-network
+    environment:
+      - NODE_ENV=development
+
+  frontend:
+    build: ./frontend
+    container_name: frontend-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-service
+      - employee-service
+      - payroll-service
+      - notification-service
+    networks:
+      - microservices-network
+    environment:
+      - NODE_ENV=development
+
+networks:
+  microservices-network:
+    driver: bridge
