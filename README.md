@@ -186,6 +186,40 @@ curl http://localhost:3004/notifications/1
 
 ## 🧪 Scénarios de Test
 
+### Tester Automatiquement Tous les Endpoints
+
+#### Option 1: Script Node.js (Recommandé)
+
+\`\`\`bash
+# Installer les dépendances (node-fetch est déjà inclus)
+npm install
+
+# Lancer tous les tests
+node test-all-endpoints.js
+\`\`\`
+
+Ce script teste automatiquement:
+- ✅ Tous les endpoints de tous les services
+- ✅ Vérifie les codes de statut HTTP
+- ✅ Affiche un rapport détaillé avec couleurs
+- ✅ Retourne un code d'erreur si des tests échouent
+
+#### Option 2: Script Bash avec curl
+
+\`\`\`bash
+# Rendre le script exécutable
+chmod +x test-endpoints.sh
+
+# Lancer tous les tests
+./test-endpoints.sh
+\`\`\`
+
+#### Option 3: Collection Postman
+
+Importez `postman-collection.json` dans Postman et utilisez le "Collection Runner" pour exécuter tous les tests automatiquement.
+
+### Scénarios d'Attaque Manuels
+
 ### Scénario 1: Vol de données PII
 \`\`\`bash
 # Un attaquant peut facilement récupérer tous les SSN

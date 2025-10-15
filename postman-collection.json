@@ -1,15 +1,42 @@
 {
   "info": {
-    "name": "Microservices Vulnérables - Démo",
-    "description": "Collection Postman pour tester les microservices vulnérables",
+    "name": "Microservices Vulnérables - Démo Complète",
+    "description": "Collection Postman pour tester TOUS les endpoints des microservices vulnérables. Inclut des scénarios d'attaque et des tests automatisés.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Auth Service",
+      "name": "Auth Service (Port 3001)",
       "item": [
         {
-          "name": "Get All Users (with passwords!)",
+          "name": "GET /users - List all users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Users contain passwords (VULNERABLE!)', function () {",
+                  "    const users = pm.response.json();",
+                  "    pm.expect(users[0]).to.have.property('password');",
+                  "});",
+                  "",
+                  "pm.test('Users contain SSN (VULNERABLE!)', function () {",
+                  "    const users = pm.response.json();",
+                  "    pm.expect(users[0]).to.have.property('ssn');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -19,11 +46,35 @@
               "host": ["localhost"],
               "port": "3001",
               "path": ["users"]
-            }
+            },
+            "description": "VULNERABLE: Exposes all users with passwords and SSNs"
           }
         },
         {
-          "name": "Login",
+          "name": "POST /login - Valid credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Login successful', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Returns user with password (VULNERABLE!)', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.user).to.have.property('password');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -42,11 +93,30 @@
               "host": ["localhost"],
               "port": "3001",
               "path": ["login"]
-            }
+            },
+            "description": "VULNERABLE: Returns full user object including password"
           }
         },
         {
-          "name": "Create User (no validation)",
+          "name": "POST /login - Invalid credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Login failed', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -57,7 +127,49 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"hacker\",\n  \"password\": \"123\",\n  \"role\": \"admin\",\n  \"ssn\": \"000-00-0000\"\n}"
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["login"]
+            }
+          }
+        },
+        {
+          "name": "POST /users - Create new user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('User created with no validation (VULNERABLE!)', function () {",
+                  "    const user = pm.response.json();",
+                  "    pm.expect(user).to.have.property('id');",
+                  "    pm.expect(user.role).to.equal('admin');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"test123\",\n  \"role\": \"admin\",\n  \"ssn\": \"999-88-7777\"\n}"
             },
             "url": {
               "raw": "http://localhost:3001/users",
@@ -65,11 +177,31 @@
               "host": ["localhost"],
               "port": "3001",
               "path": ["users"]
-            }
+            },
+            "description": "VULNERABLE: No validation, anyone can create admin users"
           }
         },
         {
-          "name": "Get User by ID",
+          "name": "GET /users/:id - Get user by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('User contains sensitive data', function () {",
+                  "    const user = pm.response.json();",
+                  "    pm.expect(user).to.have.property('password');",
+                  "    pm.expect(user).to.have.property('ssn');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -83,26 +215,65 @@
           }
         },
         {
-          "name": "Delete User (no auth!)",
+          "name": "DELETE /users/:id - Delete user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('User deleted without authorization (VULNERABLE!)', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:3001/users/2",
+              "raw": "http://localhost:3001/users/4",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3001",
-              "path": ["users", "2"]
-            }
+              "path": ["users", "4"]
+            },
+            "description": "VULNERABLE: No authorization check"
           }
         }
       ]
     },
     {
-      "name": "Employee Service",
+      "name": "Employee Service (Port 3002)",
       "item": [
         {
-          "name": "Get All Employees (with SSN!)",
+          "name": "GET /employees - List all employees",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Employees contain PII (VULNERABLE!)', function () {",
+                  "    const employees = pm.response.json();",
+                  "    pm.expect(employees[0]).to.have.property('ssn');",
+                  "    pm.expect(employees[0]).to.have.property('dateOfBirth');",
+                  "    pm.expect(employees[0]).to.have.property('address');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -112,11 +283,30 @@
               "host": ["localhost"],
               "port": "3002",
               "path": ["employees"]
-            }
+            },
+            "description": "VULNERABLE: Exposes all PII including SSN, DOB, addresses"
           }
         },
         {
-          "name": "Get Employee by ID",
+          "name": "GET /employees/:id - Get employee by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Employee contains full PII', function () {",
+                  "    const employee = pm.response.json();",
+                  "    pm.expect(employee).to.have.property('ssn');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -130,7 +320,25 @@
           }
         },
         {
-          "name": "Create Employee",
+          "name": "POST /employees - Create new employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Employee created without validation', function () {",
+                  "    const employee = pm.response.json();",
+                  "    pm.expect(employee).to.have.property('id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -141,7 +349,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Hacker\",\n  \"email\": \"alice@evil.com\",\n  \"ssn\": \"999-99-9999\",\n  \"dateOfBirth\": \"1995-01-01\",\n  \"address\": \"123 Evil St\",\n  \"phone\": \"555-HACK\",\n  \"department\": \"IT\",\n  \"position\": \"Pentester\",\n  \"hireDate\": \"2024-01-01\"\n}"
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"Employee\",\n  \"email\": \"test@company.com\",\n  \"ssn\": \"888-77-6666\",\n  \"dateOfBirth\": \"1995-05-15\",\n  \"address\": \"999 Test St\",\n  \"phone\": \"555-9999\",\n  \"department\": \"Testing\",\n  \"position\": \"QA Engineer\",\n  \"hireDate\": \"2024-01-01\"\n}"
             },
             "url": {
               "raw": "http://localhost:3002/employees",
@@ -153,7 +361,25 @@
           }
         },
         {
-          "name": "Update Employee (no auth!)",
+          "name": "PUT /employees/:id - Update employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Employee updated without authorization', function () {",
+                  "    const employee = pm.response.json();",
+                  "    pm.expect(employee.position).to.equal('Senior QA Engineer');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [
@@ -164,7 +390,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"position\": \"CEO\",\n  \"department\": \"Executive\"\n}"
+              "raw": "{\n  \"position\": \"Senior QA Engineer\",\n  \"department\": \"Quality Assurance\"\n}"
             },
             "url": {
               "raw": "http://localhost:3002/employees/1",
@@ -176,26 +402,55 @@
           }
         },
         {
-          "name": "Delete Employee",
+          "name": "DELETE /employees/:id - Delete employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('Status code is 200', function () {", "    pm.response.to.have.status(200);", "});"],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:3002/employees/3",
+              "raw": "http://localhost:3002/employees/4",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3002",
-              "path": ["employees", "3"]
+              "path": ["employees", "4"]
             }
           }
         }
       ]
     },
     {
-      "name": "Payroll Service",
+      "name": "Payroll Service (Port 3003)",
       "item": [
         {
-          "name": "Get All Payroll (with bank accounts!)",
+          "name": "GET /payroll - List all payroll records",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Payroll contains sensitive financial data (VULNERABLE!)', function () {",
+                  "    const payroll = pm.response.json();",
+                  "    pm.expect(payroll[0]).to.have.property('salary');",
+                  "    pm.expect(payroll[0]).to.have.property('bankAccount');",
+                  "    pm.expect(payroll[0]).to.have.property('ssn');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -205,11 +460,31 @@
               "host": ["localhost"],
               "port": "3003",
               "path": ["payroll"]
-            }
+            },
+            "description": "VULNERABLE: Exposes all salaries and bank accounts"
           }
         },
         {
-          "name": "Get Payroll by Employee ID",
+          "name": "GET /payroll/:employeeId - Get payroll by employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Payroll contains full financial details', function () {",
+                  "    const record = pm.response.json();",
+                  "    pm.expect(record).to.have.property('salary');",
+                  "    pm.expect(record).to.have.property('bankAccount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -223,53 +498,26 @@
           }
         },
         {
-          "name": "Adjust Salary (NO AUTH!)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          "name": "GET /payroll/banking/:employeeId - Get banking info",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Banking info exposed (CRITICAL VULNERABILITY!)', function () {",
+                  "    const banking = pm.response.json();",
+                  "    pm.expect(banking).to.have.property('bankAccount');",
+                  "    pm.expect(banking).to.have.property('bankRouting');",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"employeeId\": 1,\n  \"newSalary\": 250000,\n  \"reason\": \"Self-promotion\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:3003/payroll/adjust",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3003",
-              "path": ["payroll", "adjust"]
             }
-          }
-        },
-        {
-          "name": "Add Bonus (NO AUTH!)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"employeeId\": 1,\n  \"bonusAmount\": 50000\n}"
-            },
-            "url": {
-              "raw": "http://localhost:3003/payroll/bonus",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3003",
-              "path": ["payroll", "bonus"]
-            }
-          }
-        },
-        {
-          "name": "Get Banking Info",
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -279,16 +527,118 @@
               "host": ["localhost"],
               "port": "3003",
               "path": ["payroll", "banking", "1"]
+            },
+            "description": "CRITICAL: Exposes bank account and routing numbers"
+          }
+        },
+        {
+          "name": "POST /payroll/adjust - Adjust salary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Salary adjusted without authorization (CRITICAL!)', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "    pm.expect(response.record.salary).to.equal(100000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": 1,\n  \"newSalary\": 100000,\n  \"reason\": \"Performance review\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3003/payroll/adjust",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["payroll", "adjust"]
+            },
+            "description": "CRITICAL: Anyone can adjust salaries without authorization"
+          }
+        },
+        {
+          "name": "POST /payroll/bonus - Add bonus",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Bonus added without authorization', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": 2,\n  \"bonusAmount\": 5000\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3003/payroll/bonus",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["payroll", "bonus"]
             }
           }
         }
       ]
     },
     {
-      "name": "Notification Service",
+      "name": "Notification Service (Port 3004)",
       "item": [
         {
-          "name": "Get All Notifications",
+          "name": "GET /notifications - List all notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -302,7 +652,26 @@
           }
         },
         {
-          "name": "Send Notification",
+          "name": "POST /notify - Send notification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Notification sent with sensitive data', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "    pm.expect(response.notification).to.have.property('sensitiveData');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -313,7 +682,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"recipient\": \"victim@company.com\",\n  \"subject\": \"Your salary has been adjusted\",\n  \"message\": \"Congratulations on your promotion!\",\n  \"sensitiveData\": {\n    \"ssn\": \"123-45-6789\",\n    \"newSalary\": 1000000\n  }\n}"
+              "raw": "{\n  \"recipient\": \"test@example.com\",\n  \"subject\": \"Test Notification\",\n  \"message\": \"This is a test message\",\n  \"sensitiveData\": {\n    \"testKey\": \"testValue\"\n  }\n}"
             },
             "url": {
               "raw": "http://localhost:3004/notify",
@@ -325,7 +694,49 @@
           }
         },
         {
-          "name": "Send Payroll Notification",
+          "name": "GET /notifications/:id - Get notification by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('Status code is 200', function () {", "    pm.response.to.have.status(200);", "});"],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3004/notifications/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["notifications", "1"]
+            }
+          }
+        },
+        {
+          "name": "POST /notify/payroll - Send payroll notification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Payroll notification contains sensitive data', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.notification.sensitiveData).to.have.property('ssn');",
+                  "    pm.expect(response.notification.sensitiveData).to.have.property('salary');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -346,20 +757,6 @@
               "path": ["notify", "payroll"]
             }
           }
-        },
-        {
-          "name": "Get Notification by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3004/notifications/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3004",
-              "path": ["notifications", "1"]
-            }
-          }
         }
       ]
     },
@@ -368,6 +765,22 @@
       "item": [
         {
           "name": "Scenario 1: Steal All SSNs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully stole all SSNs', function () {",
+                  "    const employees = pm.response.json();",
+                  "    const ssns = employees.map(e => e.ssn);",
+                  "    console.log('STOLEN SSNs:', ssns);",
+                  "    pm.expect(ssns.length).to.be.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -377,11 +790,27 @@
               "host": ["localhost"],
               "port": "3002",
               "path": ["employees"]
-            }
+            },
+            "description": "ATTACK: Extract all SSNs from employee database"
           }
         },
         {
           "name": "Scenario 2: Give Yourself a Raise",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully gave yourself a raise!', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.record.salary).to.equal(999999);",
+                  "    console.log('NEW SALARY: $999,999');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -400,11 +829,32 @@
               "host": ["localhost"],
               "port": "3003",
               "path": ["payroll", "adjust"]
-            }
+            },
+            "description": "ATTACK: Unauthorized salary adjustment"
           }
         },
         {
           "name": "Scenario 3: Steal Bank Accounts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully stole bank account info', function () {",
+                  "    const payroll = pm.response.json();",
+                  "    const accounts = payroll.map(p => ({",
+                  "        name: p.employeeName,",
+                  "        account: p.bankAccount,",
+                  "        routing: p.bankRouting",
+                  "    }));",
+                  "    console.log('STOLEN BANK ACCOUNTS:', JSON.stringify(accounts, null, 2));",
+                  "    pm.expect(accounts.length).to.be.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -414,11 +864,27 @@
               "host": ["localhost"],
               "port": "3003",
               "path": ["payroll"]
-            }
+            },
+            "description": "ATTACK: Extract all bank account information"
           }
         },
         {
           "name": "Scenario 4: Create Admin Backdoor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully created admin backdoor', function () {",
+                  "    const user = pm.response.json();",
+                  "    pm.expect(user.role).to.equal('admin');",
+                  "    console.log('BACKDOOR CREATED:', user.username);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -437,7 +903,8 @@
               "host": ["localhost"],
               "port": "3001",
               "path": ["users"]
-            }
+            },
+            "description": "ATTACK: Create unauthorized admin account"
           }
         }
       ]
